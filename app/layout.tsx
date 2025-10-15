@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import Providers from '@/components/Providers'
 
 export const metadata: Metadata = {
-  title: 'OSINT Portal - Auth MVP',
-  description: 'Next.js + NextAuth + Prisma (SQLite) signup/login'
+  title: 'OSINT Portal - Minimal Login',
+  description: 'Next.js minimal login with NextAuth Credentials',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -16,3 +16,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
+
