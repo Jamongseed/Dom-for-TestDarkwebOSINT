@@ -2,7 +2,7 @@
 import NavBar from '@/components/NavBar'
 import Link from 'next/link'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { authOptions } from '@/lib/authOptions'
 import { redirect } from 'next/navigation'
 
 export default async function HomePage() {
