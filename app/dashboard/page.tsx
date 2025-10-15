@@ -1,24 +1,23 @@
-import NavBar from '@/components/NavBar'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/authOptions'
-import Link from 'next/link'
+// app/dashboard/page.tsx
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions)
+export default async function Dashboard() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect("/login");
+  }
+
+  const email = session?.user?.email ?? "";
+  const name = email.split("@")[0] || "사용자";
+  const balance = 100;
+
   return (
-    <main>
-      <NavBar />
-      <div className="mx-auto max-w-4xl px-4 py-16">
-        <h1 className="text-2xl font-semibold mb-2">Dashboard</h1>
-        {session ? (
-          <div className="space-y-2">
-            <p className="text-gray-700">Signed in as <span className="font-mono">{session.user?.email}</span></p>
-            <p className="text-gray-500 text-sm">This page is protected by middleware.</p>
-          </div>
-        ) : (
-          <div className="text-gray-700">No session. <Link href="/login" className="underline">Sign in</Link></div>
-        )}
-      </div>
+    <main style={{ padding: 24 }}>
+      <h1>어서오세요, {name}님,</h1>
+      <p>현재 당신의 코인 잔고는 {balance}입니다.</p>
     </main>
-  )
+  );
 }
+

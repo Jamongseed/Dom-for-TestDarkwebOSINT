@@ -2,18 +2,15 @@ import './globals.css'
 import type { Metadata } from 'next'
 import Providers from '@/components/Providers'
 
-export const metadata: Metadata = {
-  title: 'OSINT Portal - Minimal Login',
-  description: 'Next.js minimal login with NextAuth Credentials',
-}
+export const metadata = {
+  title: 'goormPay',
+  description: '당신의 구름 코인을 안전하게 보관하는 goormPay',
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-gray-50 text-gray-900">
-        <Providers>{children}</Providers>
-      </body>
+    <html lang="ko">
+      <body>{children}</body>
     </html>
-  )
+  );
 }
-
