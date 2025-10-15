@@ -5,8 +5,10 @@ import { useState, FormEvent, Suspense } from 'react'
 import NavBar from '@/components/NavBar'
 
 function RegisterForm() {
+  const [nickname, setNickname] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('010-')
   const [msg, setMsg] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -18,13 +20,15 @@ function RegisterForm() {
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ nickname, email, password, phone }),
       })
-      if (!res.ok) {
-        const t = await res.text()
-        throw new Error(t || 'Register failed')
-      }
+      const text = await res.text()
+      if (!res.ok) throw new Error(text || 'Register failed')
       setMsg('회원가입이 완료되었습니다. 이제 로그인해 주세요.')
+      setNickname('')
+      setEmail('')
+      setPassword('')
+      setPhone('010-')
     } catch (err: any) {
       setMsg(`오류: ${err.message ?? 'Unknown error'}`)
     } finally {
@@ -40,6 +44,17 @@ function RegisterForm() {
         {msg && <p className="mb-3 text-sm">{msg}</p>}
         <form onSubmit={onSubmit} className="space-y-3 max-w-sm">
           <label className="block">
+            <span className="text-sm">Nickname</span>
+            <input
+              className="mt-1 w-full rounded border px-3 py-2"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              required
+              minLength={2}
+              placeholder="예: 구름이"
+            />
+          </label>
+          <label className="block">
             <span className="text-sm">Email</span>
             <input
               type="email"
@@ -47,6 +62,7 @@ function RegisterForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              placeholder="you@example.com"
             />
           </label>
           <label className="block">
@@ -58,8 +74,23 @@ function RegisterForm() {
               onChange={(e) => setPassword(e.target.value)}
               minLength={8}
               required
+              placeholder="8자 이상"
             />
           </label>
+          <label className="block">
+            <span className="text-sm">Phone (010-1234-5678)</span>
+            <input
+              className="mt-1 w-full rounded border px-3 py-2"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              pattern="\d{3}-\d{4}-\d{4}"
+              title="010-1234-5678 형식으로 입력"
+              maxLength={13}
+              placeholder="010-1234-5678"
+            />
+          </label>
+
           <button
             type="submit"
             disabled={loading}

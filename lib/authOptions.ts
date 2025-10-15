@@ -19,12 +19,26 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({ where: { email } })
         if (!user) return null
+
         const ok = await bcrypt.compare(password, user.passwordHash)
         if (!ok) return null
-        return { id: user.id, email: user.email }
+
+        return { id: user.id, email: user.email, name: user.nickname }
       }
     })
   ],
   pages: { signIn: '/login' },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user?.name) token.name = user.name
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.name = typeof token.name === 'string' ? token.name : session.user.name
+      }
+      return session
+    }
+  }
 }
 
