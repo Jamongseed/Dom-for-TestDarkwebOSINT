@@ -1,5 +1,7 @@
 'use client'
-import { useState, FormEvent } from 'react'
+export const dynamic = 'force-dynamic'
+
+import { useSession } from 'next-auth/react'
 import NavBar from '@/components/NavBar'
 
 export default function RegisterPage() {
