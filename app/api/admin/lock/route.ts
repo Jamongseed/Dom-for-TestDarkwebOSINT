@@ -1,10 +1,24 @@
-// app/api/admin/lock/route.ts
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { prisma } from '@/lib/db'
 
 export const runtime = 'nodejs'
+
+function parseBool(val: unknown): boolean | undefined {
+  if (typeof val === 'boolean') return val
+  if (typeof val === 'string') {
+    const v = val.toLowerCase()
+    if (v === 'true' || v === '1') return true
+    if (v === 'false' || v === '0') return false
+    return undefined
+  }
+  if (typeof val === 'number') {
+    if (val === 1) return true
+    if (val === 0) return false
+  }
+  return undefined
+}
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
@@ -19,25 +33,15 @@ export async function POST(req: Request) {
   const ct = req.headers.get('content-type') || ''
   try {
     if (ct.includes('application/json')) {
-      const body = (await req.json()) as { userId?: string; locked?: boolean | string | number }
+      const body = (await req.json()) as { userId?: string; locked?: unknown }
       userId = body.userId
-      const lv = body.locked
-      locked =
-        lv === true || lv === 'true' || lv === 1 || lv === '1'
-          ? true
-          : lv === false || lv === 'false' || lv === 0 || lv === '0'
-          ? false
-          : undefined
+      locked = parseBool(body.locked)
     } else {
       const form = await req.formData()
-      userId = String(form.get('userId') || '')
-      const l = form.get('locked')
-      locked =
-        l === 'true' || l === true || l === '1' || l === 1
-          ? true
-          : l === 'false' || l === false || l === '0' || l === 0
-          ? false
-          : undefined
+      const idVal = form.get('userId')
+      const lockVal = form.get('locked')
+      userId = typeof idVal === 'string' ? idVal : undefined
+      locked = parseBool(lockVal)
     }
   } catch {
     return NextResponse.json({ error: 'Bad body' }, { status: 400 })
@@ -59,3 +63,4 @@ export async function POST(req: Request) {
 export async function GET() {
   return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 })
 }
+
