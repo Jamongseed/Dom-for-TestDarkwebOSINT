@@ -1,5 +1,6 @@
-# Next.js + NextAuth + Prisma (SQLite) — Signup/Login MVP
-
+# Next.js + NextAuth + Prisma
+goormPay
 ## Setup
 ```bash
+
 npm i
