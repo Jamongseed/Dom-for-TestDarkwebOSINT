@@ -1,4 +1,3 @@
-// app/admin/users/page.tsx
 import { redirect, notFound } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/authOptions"
@@ -10,7 +9,6 @@ const AKIA_RE = /^AKIA[0-9A-Z]{16}$/
 export const dynamic = "force-dynamic"
 
 export default async function AdminUsersPage() {
-
   const session = await getServerSession(authOptions)
   if (!session?.user?.email) redirect("/login?redirect=/admin/users")
 
@@ -39,7 +37,6 @@ export default async function AdminUsersPage() {
       throw new Error("Invalid AccessKeyId format (must be AKIA + 16 [A-Z0-9])")
     }
 
-
     const row = await prisma.$queryRaw<{ awsAccessKey: string | null }[]>`
       SELECT "awsAccessKey" FROM "User" WHERE "id" = ${id} LIMIT 1
     `
@@ -63,7 +60,6 @@ export default async function AdminUsersPage() {
     revalidatePath("/admin/users")
   }
 
-
   async function toggleLock(formData: FormData) {
     "use server"
     const id = String(formData.get("id") || "")
@@ -72,8 +68,19 @@ export default async function AdminUsersPage() {
 
     await prisma.$executeRaw`
       UPDATE "User"
-      SET "locked"=${lock}, "lockedAt"=CASE WHEN ${lock} THEN NOW() ELSE NULL END, "lockReason"=${reason}
+      SET "locked"=${lock},
+          "lockedAt"=CASE WHEN ${lock} THEN NOW() ELSE NULL END,
+          "lockReason"=${reason}
       WHERE "id"=${id}
+    `
+    revalidatePath("/admin/users")
+  }
+
+  async function markActive(formData: FormData) {
+    "use server"
+    const id = String(formData.get("id") || "")
+    await prisma.$executeRaw`
+      UPDATE "User" SET "awsKeyStatus"='ACTIVE' WHERE "id"=${id}
     `
     revalidatePath("/admin/users")
   }
@@ -124,16 +131,29 @@ export default async function AdminUsersPage() {
                     </button>
                   </form>
 
-                  <form action={toggleLock} className="inline-block mt-2">
-                    <input type="hidden" name="id" value={u.id} />
-                    <input type="hidden" name="lock" value={u.locked ? "false" : "true"} />
-                    <button
-                      type="submit"
-                      className={`px-3 py-1 rounded ${u.locked ? "bg-green-600" : "bg-rose-600"} text-white`}
-                    >
-                      {u.locked ? "Unlock" : "Lock"}
-                    </button>
-                  </form>
+                  <div className="flex gap-2 mt-2">
+                    <form action={toggleLock}>
+                      <input type="hidden" name="id" value={u.id} />
+                      <input type="hidden" name="lock" value={u.locked ? "false" : "true"} />
+                      <button
+                        type="submit"
+                        className={`px-3 py-1 rounded ${u.locked ? "bg-green-600" : "bg-rose-600"} text-white`}
+                      >
+                        {u.locked ? "Unlock" : "Lock"}
+                      </button>
+                    </form>
+
+                    <form action={markActive}>
+                      <input type="hidden" name="id" value={u.id} />
+                      <button
+                        type="submit"
+                        className="px-3 py-1 bg-gray-700 text-white rounded"
+                        title="awsKeyStatus를 ACTIVE로 복귀"
+                      >
+                        Mark Active
+                      </button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             ))}

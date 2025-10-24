@@ -16,7 +16,7 @@ export default async function HomePage() {
       <NavBar />
       <div className="mx-auto max-w-4xl px-4 py-16">
         <h1 className="text-2xl font-semibold mb-2">어서오세요</h1>
-        <p className="text-gray-700">당신의 구름 코인을 저장하는 goormPay입니다.</p>
+        <p className="text-gray-700">당신의 구름 AWS를 관리하는 goormAWS 입니다.</p>
 
         <div className="mt-6 flex gap-3">
           <Link href="/register" className="px-4 py-2 rounded-lg bg-black text-white">Create Account</Link>
