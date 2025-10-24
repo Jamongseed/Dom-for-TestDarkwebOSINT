@@ -1,4 +1,4 @@
-import NavBar from '@/components/NavBar'
+// app/dashboard/page.tsx
 import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/authOptions"
@@ -6,19 +6,22 @@ import { prisma } from "@/lib/db"
 
 export const dynamic = "force-dynamic"
 
+type Row = { awsKeyStatus: string | null; nickname: string | null }
+
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.email) {
-    redirect("/login?redirect=/dashboard")
-  }
+  if (!session?.user?.email) redirect("/login?redirect=/dashboard")
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    select: { awsKeyStatus: true, nickname: true },
-  })
+  const rows = await prisma.$queryRaw<Row[]>`
+    SELECT "awsKeyStatus","nickname"
+    FROM "User"
+    WHERE email = ${session.user.email}
+    LIMIT 1
+  `
+  const row = rows[0] ?? { awsKeyStatus: null, nickname: null }
 
-  const name = session.user.name || user?.nickname || "사용자"
-  const isIncident = (user?.awsKeyStatus ?? "ACTIVE") !== "ACTIVE"
+  const name = session.user.name || row.nickname || "사용자"
+  const isIncident = (row.awsKeyStatus ?? "ACTIVE") !== "ACTIVE"
 
   return (
     <main className="p-8 space-y-3">
