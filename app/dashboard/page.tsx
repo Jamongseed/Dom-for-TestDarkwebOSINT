@@ -20,7 +20,10 @@ export default async function DashboardPage() {
   `
   const row = rows[0] ?? { awsKeyStatus: null, nickname: null }
 
-  const name = session.user.name || row.nickname || "사용자"
+  const displayName =
+    (row.nickname && row.nickname.trim()) ||
+    (session.user.email?.split("@")[0] ?? "사용자")
+
   const isIncident = (row.awsKeyStatus ?? "ACTIVE") !== "ACTIVE"
 
   return (
@@ -29,12 +32,12 @@ export default async function DashboardPage() {
 
       {!isIncident ? (
         <>
-          <p>어서오세요, {name}님,</p>
+          <p>어서오세요, {displayName}님,</p>
           <p>현재 당신의 <b>AWS</b>는 정상 유지 중입니다.</p>
         </>
       ) : (
         <>
-          <p>어서오세요, {name}님,</p>
+          <p>어서오세요, {displayName}님,</p>
           <p className="text-rose-600 font-medium">
             최근 유출 사고(또는 그에 준하는 이슈) 발생으로 인해, 계정의 AWS키가 자동 초기화 됐습니다.
           </p>
