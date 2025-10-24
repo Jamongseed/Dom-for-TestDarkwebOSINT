@@ -149,7 +149,7 @@ export default async function AdminUsersPage() {
       </div>
 
       <p className="text-xs text-gray-500">
-        * 새 Key는 <span className="font-mono">AKIA[0-9A-Z]{{"{16}"}}</span> 형식만 허용됩니다.
+        * 새 Key는 <span className="font-mono">{'AKIA[0-9A-Z]{16}'}</span> 형식만 허용됩니다.
         SecretAccessKey는 저장/노출하지 않습니다.
       </p>
     </main>
