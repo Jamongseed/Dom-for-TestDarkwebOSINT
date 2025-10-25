@@ -28,22 +28,25 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "phone required" }, { status: 400 })
   }
 
-  const user = await prisma.user.findFirst({
-    where: { phone },
-    select: {
-      id: true,
-      email: true,
-      phone: true,
-      awsAccessKey: true,
-      awsKeyStatus: true,
-      locked: true,
-    },
-  })
+  const rows = await prisma.$queryRaw<{
+    id: string
+    email: string
+    phone: string | null
+    awsAccessKey: string | null
+    awsKeyStatus: string | null
+    locked: boolean
+  }[]>`
+    SELECT "id","email","phone","awsAccessKey","awsKeyStatus","locked"
+    FROM "User"
+    WHERE "phone" = ${phone}
+    LIMIT 1
+  `
 
-  if (!user) {
+  if (!rows.length) {
     return NextResponse.json({ ok: false, error: "not found" }, { status: 404 })
   }
 
+  const user = rows[0]
   const iamUser = process.env.ROTATE_IAM_USER || "goormaws-app"
 
   return NextResponse.json({
